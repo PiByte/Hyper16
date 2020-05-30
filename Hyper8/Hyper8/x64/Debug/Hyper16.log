@@ -1,0 +1,3 @@
+﻿  main.cpp
+C:\Users\Jacob\source\repos\Hyper16\Hyper16\cpu.hpp(41,13): warning C4244: 'initializing': conversion from 'word' to 'byte', possible loss of data
+C:\Users\Jacob\source\repos\Hyper16\Hyper16\cpu.hpp(139,2): error C2059: syntax error: '}'
