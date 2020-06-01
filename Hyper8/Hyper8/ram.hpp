@@ -1,3 +1,10 @@
+#pragma once
+
+/*
+Takes care of the computer memory (ram)
+Can also load data from a buffer
+*/
+
 #include "types.hpp"
 
 #include <vector>

@@ -1,3 +1,9 @@
+#pragma once
+
+/*
+Emulates the CPU
+*/
+
 #include <iostream>
 
 #include "types.hpp"
@@ -5,6 +11,14 @@
 
 #define START_ADDRESS 0x0400
 #define STACK_ADDRESS 0x0100
+
+struct cpuInfo
+{
+	byte reg[4] = { 0 };
+	bool flags[3] = { false };
+	address pc = 0;
+	byte sp = 0;
+};
 
 class CPU
 {
@@ -14,8 +28,8 @@ public:
 		if (!running) return;
 
 		// this assumes that this function is updated 60 times every second
-		// 1 MHz, or ~1 000 000 instructions per second
-		for (int i = 0; i < 16667; i++)
+		// Runs at 0.6 MIPS. For comparison, the Intel Core i7 6950X runs at 320440 MIPS
+		//for (int i = 0; i < 10000; i++)
 			step();
 	}
 
@@ -37,12 +51,33 @@ public:
 		pc = (pc + length) & 0xFFFF;
 	}
 
+	cpuInfo getCpuInfo()
+	{
+		// returns info about the processor
+
+		cpuInfo c;
+
+		c.reg[0] = this->reg[0];
+		c.reg[1] = this->reg[1];
+		c.reg[2] = this->reg[2];
+		c.reg[3] = this->reg[3];
+
+		c.flags[0] = this->flags[0];
+		c.flags[1] = this->flags[1];
+		c.flags[2] = this->flags[2];
+
+		c.pc = this->pc;
+		c.sp = this->sp;
+
+		return c;
+	}
+
 	RAM* getMemory() { return &mem; }
 	bool isRunning() { return running; }
 
 private:
 	byte reg[4] = { 0 };
-	bool flags[3] = { false, false, false };
+	bool flags[3] = { false };
 
 	address pc = START_ADDRESS;
 	byte sp = 0x00;
@@ -151,12 +186,15 @@ private:
 
 	void instSpl()
 	{
+		length = 1;
 		reg[0] = mem.readByte(STACK_ADDRESS + --sp);
 	}
 
 	void instJmp()
 	{
-		if (switchData == 0b00 || flags[switchData - 1]) //todo explain
+		length = 3;
+
+		if (switchData == 0b00 || flags[switchData - 1])
 		{
 			length = 0;
 			pc = (higherByte << 8) + lowerByte;
@@ -165,9 +203,11 @@ private:
 
 	void instSbr()
 	{
+		length = 3;
+
 		if (switchData == 0b00 || flags[switchData - 1])
 		{
-			mem.writeWord(STACK_ADDRESS + sp, pc);
+			mem.writeWord(STACK_ADDRESS + sp, pc + length);
 			sp += 2;
 
 			length = 0;
@@ -177,7 +217,7 @@ private:
 
 	void instRet()
 	{
-		length = 1; // Short instruction, and will therefore only have a length of 1.
+		length = 0;
 
 		sp -= 2;
 		pc = mem.readWord(STACK_ADDRESS + sp);

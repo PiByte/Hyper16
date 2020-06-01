@@ -1,0 +1,6 @@
+﻿  main.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 245 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Hyper8.vcxproj -> C:\Users\Jacob\source\repos\Hyper8\x64\Release\Hyper8.exe
